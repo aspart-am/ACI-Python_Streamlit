@@ -1,0 +1,298 @@
+/* Style personnalisé pour l'application ACI - Inspiré de Doctolib */
+
+/* Variables de couleurs */
+:root {
+    --primary-color: #0596DE;
+    --primary-light: #E8F5FC;
+    --primary-dark: #0070CC;
+    --secondary-color: #2D3E50;
+    --success-color: #35B984;
+    --warning-color: #F5A623;
+    --danger-color: #E74C3C;
+    --light-gray: #F8F9FA;
+    --medium-gray: #E9ECEF;
+    --dark-gray: #6C757D;
+    --white: #FFFFFF;
+    --black: #000000;
+    --font-family: 'Lato', sans-serif;
+}
+
+/* Style général */
+.main {
+    background-color: var(--light-gray);
+    font-family: var(--font-family);
+    color: var(--secondary-color);
+}
+
+/* En-tête */
+.stApp header {
+    background-color: var(--white);
+    border-bottom: 1px solid var(--medium-gray);
+}
+
+/* Titre principal */
+h1 {
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 2.2rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Sous-titres */
+h2 {
+    color: var(--secondary-color);
+    font-weight: 600;
+    font-size: 1.8rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+h3 {
+    color: var(--secondary-color);
+    font-weight: 600;
+    font-size: 1.4rem;
+    margin-top: 1.2rem;
+    margin-bottom: 0.8rem;
+}
+
+/* Cartes */
+.css-1r6slb0 {
+    background-color: var(--white);
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Boutons */
+.stButton > button {
+    background-color: var(--primary-color);
+    color: var(--white);
+    border: none;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.stButton > button:hover {
+    background-color: var(--primary-dark);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Boutons secondaires */
+.secondary-button > button {
+    background-color: var(--white);
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+.secondary-button > button:hover {
+    background-color: var(--primary-light);
+    color: var(--primary-dark);
+}
+
+/* Boutons de danger */
+.danger-button > button {
+    background-color: var(--danger-color);
+}
+
+.danger-button > button:hover {
+    background-color: #c0392b;
+}
+
+/* Inputs */
+.stTextInput > div > div > input {
+    border-radius: 5px;
+    border: 1px solid var(--medium-gray);
+    padding: 0.5rem;
+}
+
+.stTextInput > div > div > input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(5, 150, 222, 0.2);
+}
+
+/* Select boxes */
+.stSelectbox > div > div > div {
+    border-radius: 5px;
+    border: 1px solid var(--medium-gray);
+}
+
+/* Checkboxes */
+.stCheckbox > div > div > label > div {
+    background-color: var(--white);
+    border: 1px solid var(--medium-gray);
+    border-radius: 3px;
+}
+
+.stCheckbox > div > div > label > div[data-baseweb="checkbox"] > div {
+    background-color: var(--primary-color);
+}
+
+/* Tabs */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 2px;
+}
+
+.stTabs [data-baseweb="tab"] {
+    height: 50px;
+    white-space: pre-wrap;
+    background-color: var(--white);
+    color: var(--secondary-color);
+    border-radius: 5px 5px 0 0;
+    border: 1px solid var(--medium-gray);
+    border-bottom: none;
+}
+
+.stTabs [aria-selected="true"] {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+/* Tableaux */
+.stDataFrame {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.stDataFrame thead tr th {
+    background-color: var(--primary-color);
+    color: var(--white);
+    font-weight: 600;
+}
+
+.stDataFrame tbody tr:nth-child(even) {
+    background-color: var(--light-gray);
+}
+
+/* Métriques */
+.stMetric {
+    background-color: var(--white);
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    padding: 1rem;
+}
+
+.stMetric label {
+    color: var(--dark-gray);
+    font-weight: 600;
+}
+
+.stMetric [data-testid="stMetricValue"] {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+/* Alertes */
+.stAlert {
+    border-radius: 5px;
+}
+
+/* Sidebar */
+.css-1d391kg {
+    background-color: var(--white);
+}
+
+.css-1d391kg .stButton > button {
+    width: 100%;
+}
+
+/* Personnalisation des onglets */
+.tab-content {
+    background-color: var(--white);
+    border-radius: 0 10px 10px 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+}
+
+.badge-success {
+    background-color: var(--success-color);
+    color: var(--white);
+}
+
+.badge-warning {
+    background-color: var(--warning-color);
+    color: var(--white);
+}
+
+.badge-danger {
+    background-color: var(--danger-color);
+    color: var(--white);
+}
+
+.badge-info {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+/* Cartes d'indicateurs */
+.indicator-card {
+    background-color: var(--white);
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid var(--primary-color);
+}
+
+.indicator-card.validated {
+    border-left-color: var(--success-color);
+}
+
+.indicator-card.not-validated {
+    border-left-color: var(--danger-color);
+}
+
+/* Graphiques */
+.chart-container {
+    background-color: var(--white);
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Formulaires */
+.form-container {
+    background-color: var(--white);
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-container h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+/* Séparateur */
+hr {
+    margin: 2rem 0;
+    border: 0;
+    border-top: 1px solid var(--medium-gray);
+}
+
+/* Footer */
+footer {
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--medium-gray);
+    text-align: center;
+    color: var(--dark-gray);
+    font-size: 0.8rem;
+}
