@@ -18,6 +18,26 @@ st.set_page_config(
     }
 )
 
+# Masquer la barre latérale avec les fichiers Python
+st.markdown("""
+<style>
+    /* Masquage de la barre du navigateur de fichiers */
+    section.main-file-navigation,
+    div[data-testid="stFileNavigationToggle"],
+    div[data-testid="stFileBrowser"],
+    div.css-1ay57l1,
+    div.st-emotion-cache-1ay57l1,
+    div.st-emotion-cache-1cypcdb,
+    div.css-1544g2n,
+    div.st-emotion-cache-1544g2n {
+        display: none !important;
+        width: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # Forcer le thème clair
 st.markdown("""
     <style>
@@ -31,7 +51,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Style Doctolib pour l'en-tête et la navigation
-doctolib_header = """
+st.markdown("""
     <style>
     /* En-tête de style Doctolib */
     [data-testid="stSidebar"] {
@@ -42,7 +62,7 @@ doctolib_header = """
     [data-testid="stSidebar"] > div:first-child {
         padding: 0 !important;
     }
-
+    
     .sidebar-header {
         background-color: #006deb;
         color: white;
@@ -90,9 +110,33 @@ doctolib_header = """
         background-color: rgba(0, 109, 235, 0.05);
         border-radius: 8px;
     }
+    
+    /* Éliminer les espaces vides dans la barre latérale */
+    [data-testid="stSidebar"] .block-container {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+    
+    /* Amélioration des éléments radio */
+    .stRadio > div {
+        gap: 0 !important;
+    }
+    
+    .stRadio > div > div > label {
+        padding: 0.5rem 0.75rem !important;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+    
+    .stRadio > div > div > label[data-baseweb="radio"] > div:first-child {
+        margin-right: 12px !important;
+    }
+    
+    .stRadio > div > div > label > div:last-child {
+        font-weight: 500;
+    }
     </style>
-"""
-st.markdown(doctolib_header)
+""", unsafe_allow_html=True)
 
 # Désactiver les éléments d'interface Streamlit par défaut avec CSS
 hide_streamlit_style = """
@@ -111,6 +155,14 @@ hide_streamlit_style = """
     /* Classes alternatives qui peuvent être utilisées */
     nav {display: none !important;}
     header[data-testid="stHeader"] {display: none !important;}
+    
+    /* Masquer la barre latérale avec les fichiers du projet */
+    .main-file-navigation {display: none !important;}
+    .css-1544g2n {display: none !important;}
+    .st-emotion-cache-1544g2n {display: none !important;}
+    [data-testid="stFileBrowser"] {display: none !important;}
+    .st-emotion-cache-1cypcdb {display: none !important;}
+    .st-emotion-cache-1ay57l1 {display: none !important;}
     
     /* Élimine tout espace à gauche */
     .main .block-container {padding-left: 2rem !important;}
@@ -152,7 +204,7 @@ pages = {
 }
 
 # Sélection de la page
-selection = st.sidebar.radio("", list(pages.keys()))
+selection = st.sidebar.radio("", list(pages.keys()), label_visibility="collapsed")
 
 st.sidebar.markdown('</div>', unsafe_allow_html=True)
 

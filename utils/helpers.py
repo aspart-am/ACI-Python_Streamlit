@@ -287,9 +287,6 @@ def get_associes_repartition():
     if net_revenue <= 0:
         return {}
     
-    # Récupérer le coefficient de pondération pour les gérants
-    ponderation_gerants = float(get_parameter_value("ponderation_gerants") or 1.5)
-    
     # Étape 1: Calculer d'abord les points et pourcentages relatifs pour chaque associé
     # (sans convertir en euros)
     pourcentages_associes = {}
@@ -335,15 +332,20 @@ def get_associes_repartition():
             
             # Répartir les points selon le mode de répartition
             if repartition and repartition.est_commun:
-                # Répartition commune entre tous les associés avec pondération des gérants
+                # Répartition commune entre tous les associés avec leurs coefficients individuels
                 # Calculer le total des coefficients pour la pondération
-                total_poids = sum(ponderation_gerants if a.est_gerant else 1.0 for a in associes)
+                total_poids = sum(a.coefficient_majoration for a in associes)
                 
-                # Calculer la part de base en points (pour un associé normal)
+                # Calculer la part de base en points
                 part_base_points = points / total_poids
                 
-                # Calculer les points pour cet associé
-                coefficient = ponderation_gerants if resultats[attribution.associe_id]["est_gerant"] else 1.0
+                # Calculer les points pour cet associé en fonction de son coefficient
+                associe_id = attribution.associe_id
+                session = get_session()
+                associe = session.query(Associe).filter_by(id=associe_id).first()
+                coefficient = associe.coefficient_majoration if associe else 1.0
+                session.close()
+                
                 part_points = part_base_points * coefficient
                 
                 if indicateur.type == 'socle' or indicateur.type == 'prérequis':

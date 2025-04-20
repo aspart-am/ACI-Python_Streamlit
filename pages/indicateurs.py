@@ -12,7 +12,93 @@ from utils import get_session
 
 def show():
     """Affiche la page de gestion des indicateurs."""
-    st.title("Gestion des indicateurs ACI")
+    st.title("🎯 Gestion des indicateurs ACI")
+    
+    # Section d'information sur la méthode de calcul
+    with st.expander("ℹ️ Méthode de calcul des indicateurs ACI", expanded=False):
+        st.markdown("""
+        ## Méthode de calcul des indicateurs ACI
+        
+        ### Indicateurs Socles (prérequis)
+        Ces indicateurs donnent un nombre de points fixe ou proratisé selon la patientèle, et sont obligatoires pour déclencher la dotation ACI.
+        
+        #### Accès aux soins
+        
+        **Amplitude horaires** : 
+        - Amplitude complète : 800 points si la MSP est ouverte de 8h à 20h du lundi au vendredi et le samedi matin.
+        - Amplitude réduite : 
+            - 740 points si ouverture 10h-12h lun-ven + samedi matin
+            - 650 points si ouverture 8h-10h lun-ven + samedi matin
+            - 680 points si fermeture le samedi matin
+            - 780 points si fermeture limitée à ≤ 3 semaines/an
+            
+        **Réponse aux crises sanitaires graves** :
+        - Plan de préparation : 100 points si la MSP dispose d'un plan formalisé.
+        - Actions complémentaires : 350 points proratisés (350 × patientèle/4000) si le plan est actif.
+        
+        #### Travail en équipe
+        
+        **Coordination formalisée** : 
+        - 1000 points si une fonction de coordination est identifiée (temps et fiche de poste).
+        - 1700 points proratisés selon le nombre de patients (1700 × patientèle/4000).
+        
+        **Protocoles et concertation pluriprofessionnelle** :
+        - Protocoles établis : 100 points par protocole, jusqu'à 8 maximum (800 points).
+        - Intégration d'un IPA : 40 points supplémentaires par protocole.
+        - Réunions RCP : 1000 points proratisés (1000 × patientèle/4000) si au moins 6 réunions/an.
+        - Compte-rendu formalisé : 200 points proratisés si au moins un compte‑rendu formalisé.
+        
+        #### Système d'information
+        
+        **Labellisation** :
+        - 500 points si utilisation d'un dossier patient informatisé labellisé.
+        - 200 points pour chacun des 16 premiers professionnels équipés.
+        - 150 points pour chaque professionnel supplémentaire.
+        
+        ### Indicateurs Optionnels
+        
+        **Diversité de services** :
+        - 300 points pour niveau 1 (ex. une profession médicale ou pharmacien en plus)
+        - 300 points pour niveau 2 (ex. 3 professions paramédicales différentes)
+        
+        **Consultations de second recours** :
+        - 300 points niveau 1 (accès ponctuel à un spécialiste extérieur)
+        - 300 points niveau 2 (au moins 2,5 jours de consultations par semaine)
+        
+        **Contrat de Solidarité Territoriale** :
+        - 200 points si au moins un médecin a signé un CST
+        - 100 points supplémentaires si ≥ 50% des médecins s'engagent
+        
+        **Missions de santé publique** :
+        - 350 points pour chaque mission jusqu'à 2, proratisés selon la patientèle
+        - 200 points bonus dès que ≥ 2 missions sont réalisées
+        
+        **Implication des usagers** :
+        - 200 points niveau 1 (mise en place d'outils de participation)
+        - 300 points niveau 2 proratisés selon la patientèle
+        
+        **Dispositif SAS (soins non programmés)** :
+        - 200 points niveau 1 (tous les médecins participent)
+        - 100 points niveau 2 (≥ 50% des médecins participent)
+        
+        **Formation des jeunes professionnels** :
+        - 450 points si ≥ 2 stages/an réalisés
+        - 225 points supplémentaires pour un 3ᵉ stage
+        - 225 points supplémentaires pour un 4ᵉ stage
+        
+        **Autres indicateurs optionnels** :
+        - Transmission des données : 200 points proratisés si procédure formalisée
+        - Démarche qualité : 100 points (niveau 1), 200 points proratisés (niveau 2), 300 points proratisés (niveau 3)
+        - Protocoles de coopération : 100 points fixes
+        - Parcours insuffisance cardiaque : 100 points proratisés
+        - Parcours surpoids/obésité de l'enfant : 100 points fixes
+        - Système d'information avancé : 100 points fixes pour niveau labellisé "avancé"
+        
+        ### Calcul final de la dotation
+        
+        - Points totaux = Total Socles + Total Optionnels
+        - Dotation annuelle = Points totaux × Valeur du point (ex. 7 €)
+        """)
     
     # Récupérer les paramètres nécessaires
     valeur_point = float(get_parameter_value("valeur_point") or 7)
@@ -21,14 +107,12 @@ def show():
     taux_dossiers = float(get_parameter_value("taux_dossiers") or 5)
     
     # Formulaire pour mettre à jour les paramètres
-    with st.expander("Paramètres de calcul", expanded=False):
-        st.subheader("Paramètres de calcul")
-        
+    with st.expander("⚙️ Paramètres de calcul", expanded=False):
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
             new_patientele = st.number_input(
-                "Patientèle",
+                "🧑‍⚕️ Patientèle",
                 min_value=0,
                 value=patientele,
                 step=100,
@@ -37,7 +121,7 @@ def show():
         
         with col2:
             new_nombre_ps = st.number_input(
-                "Nombre de PS",
+                "👨‍⚕️ Nombre de PS",
                 min_value=1,
                 value=nombre_ps,
                 step=1,
@@ -46,7 +130,7 @@ def show():
         
         with col3:
             new_taux_dossiers = st.number_input(
-                "Taux de dossiers (%)",
+                "📋 Taux de dossiers (%)",
                 min_value=0.0,
                 max_value=100.0,
                 value=taux_dossiers,
@@ -56,7 +140,7 @@ def show():
         
         with col4:
             new_valeur_point = st.number_input(
-                "Valeur du point (€)",
+                "💲 Valeur du point (€)",
                 min_value=0.0,
                 value=valeur_point,
                 step=0.1,
@@ -68,15 +152,14 @@ def show():
             set_parameter_value("nombre_ps", str(new_nombre_ps))
             set_parameter_value("taux_dossiers", str(new_taux_dossiers))
             set_parameter_value("valeur_point", str(new_valeur_point))
-            st.success("Paramètres mis à jour avec succès !")
+            st.success("✅ Paramètres mis à jour avec succès !")
             st.rerun()
     
     # Créer des onglets pour chaque axe
-    tabs = st.tabs([
-        "Accès aux soins", 
-        "Travail en équipe & coordination", 
-        "Système d'information"
-    ])
+    tab_icons = ["🏥", "👥", "💻"]
+    tab_names = ["Accès aux soins", "Travail en équipe & coordination", "Système d'information"]
+    
+    tabs = st.tabs([f"{icon} {name}" for icon, name in zip(tab_icons, tab_names)])
     
     # Récupérer tous les indicateurs
     session = get_session()
@@ -111,7 +194,7 @@ def show():
     # Fonction pour afficher un indicateur simple
     def afficher_indicateur_simple(indicateur, tab_index):
         with st.container():
-            col1, col2, col3, col4 = st.columns([3, 1, 1, 1])
+            col1, col2 = st.columns([3, 2])
             
             with col1:
                 est_valide = st.checkbox(
@@ -129,28 +212,30 @@ def show():
                     st.rerun()
             
             with col2:
-                points_fixes = indicateur.points_fixes
-                st.write(f"**Points fixes**: {points_fixes}")
-            
-            with col3:
-                points_variables = indicateur.points_variables
-                st.write(f"**Points variables**: {points_variables}")
-            
-            with col4:
-                # Calculer les points totaux pour cet indicateur
-                points_totaux = calculate_indicator_points(
-                    indicateur.id,
-                    patientele=patientele,
-                    nombre_ps=nombre_ps,
-                    taux_dossiers=taux_dossiers/100  # Convertir en pourcentage
-                )
+                col_pts1, col_pts2, col_pts3 = st.columns(3)
+                with col_pts1:
+                    points_fixes = indicateur.points_fixes
+                    st.write(f"🔒 **Fixe**: {points_fixes}")
                 
-                montant = points_totaux * valeur_point if indicateur.est_valide else 0
-                st.write(f"**Montant**: {format_currency(montant)}")
+                with col_pts2:
+                    points_variables = indicateur.points_variables
+                    st.write(f"📊 **Variable**: {points_variables}")
+                
+                with col_pts3:
+                    # Calculer les points totaux pour cet indicateur
+                    points_totaux = calculate_indicator_points(
+                        indicateur.id,
+                        patientele=patientele,
+                        nombre_ps=nombre_ps,
+                        taux_dossiers=taux_dossiers/100  # Convertir en pourcentage
+                    )
+                    
+                    montant = points_totaux * valeur_point if indicateur.est_valide else 0
+                    st.write(f"💰 **{format_currency(montant)}**")
             
             # Afficher la formule de calcul si elle existe
             if indicateur.formule_calcul:
-                st.caption(f"Formule: {indicateur.formule_calcul}")
+                st.caption(f"ℹ️ {indicateur.formule_calcul}")
             
             # Ajouter un séparateur
             st.markdown("---")
@@ -158,35 +243,35 @@ def show():
     # Fonction pour afficher un groupe d'indicateurs
     def afficher_groupe_indicateurs(nom_groupe, indicateurs_groupe, tab_index):
         with st.container():
-            st.subheader(nom_groupe)
+            st.write(f"### {nom_groupe}")
             
             # Créer des options pour le menu déroulant
-            options = ["Non validé"]
+            options = ["🚫 Non validé"]
             id_map = {0: None}  # Pour mapper l'option sélectionnée à l'ID de l'indicateur
             
             for i, ind in enumerate(indicateurs_groupe):
                 # Extraire le niveau/variante pour l'affichage
                 if " - Niveau " in ind.nom:
                     niveau = ind.nom.split(" - Niveau ")[1]
-                    options.append(f"Niveau {niveau}")
+                    options.append(f"✅ Niveau {niveau}")
                 elif " - Variable " in ind.nom:
                     variante = ind.nom.split(" - Variable ")[1]
-                    options.append(f"Variable: {variante}")
+                    options.append(f"📈 Variable: {variante}")
                 elif " - Fixe" in ind.nom:
-                    options.append("Fixe")
+                    options.append("🔒 Fixe")
                 elif "(avec IPA)" in ind.nom:
-                    options.append("Avec IPA")
+                    options.append("👩‍⚕️ Avec IPA")
                 elif "(sans IPA)" in ind.nom:
-                    options.append("Sans IPA")
+                    options.append("👤 Sans IPA")
                 elif " médecins)" in ind.nom:
                     pourcentage = ind.nom.split("(")[1].split(" médecins")[0]
-                    options.append(f"{pourcentage}")
+                    options.append(f"🩺 {pourcentage}")
                 elif " - Plan" in ind.nom:
-                    options.append("Plan")
+                    options.append("📝 Plan")
                 elif " - Activation" in ind.nom:
-                    options.append("Activation")
+                    options.append("🚨 Activation")
                 else:
-                    options.append(ind.nom)
+                    options.append(f"✅ {ind.nom}")
                 
                 id_map[i+1] = ind.id
             
@@ -201,20 +286,22 @@ def show():
             if len(indicateurs_groupe) <= 3 and all(ind.type == "socle" for ind in indicateurs_groupe):
                 # Utiliser des cases à cocher pour les indicateurs socle qui vont ensemble
                 selected_ids = []
+                
                 for ind in indicateurs_groupe:
+                    icon = "🔒"
                     if " - Variable " in ind.nom:
                         variante = ind.nom.split(" - Variable ")[1]
-                        label = f"Variable: {variante}"
+                        label = f"📈 Variable: {variante}"
                     elif " - Fixe" in ind.nom:
-                        label = "Fixe"
+                        label = "🔒 Fixe"
                     elif "(avec IPA)" in ind.nom:
-                        label = "Avec IPA"
+                        label = "👩‍⚕️ Avec IPA"
                     elif "(sans IPA)" in ind.nom:
-                        label = "Sans IPA"
+                        label = "👤 Sans IPA"
                     elif " - Plan" in ind.nom:
-                        label = "Plan"
+                        label = "📝 Plan"
                     elif " - Activation" in ind.nom:
-                        label = "Activation"
+                        label = "🚨 Activation"
                     else:
                         label = ind.nom
                     
@@ -274,7 +361,7 @@ def show():
                     with col1:
                         points_fixes = ind.points_fixes
                         points_variables = ind.points_variables
-                        st.write(f"**Points**: {points_fixes} fixes + {points_variables} variables")
+                        st.write(f"**🔢 Points**: {points_fixes} fixes + {points_variables} variables")
                     
                     with col2:
                         # Calculer les points totaux
@@ -284,21 +371,21 @@ def show():
                             nombre_ps=nombre_ps,
                             taux_dossiers=taux_dossiers/100
                         )
-                        st.write(f"**Total points**: {points_totaux:.1f}")
+                        st.write(f"**📊 Total**: {points_totaux:.1f} pts")
                     
                     with col3:
                         montant = points_totaux * valeur_point
-                        st.write(f"**Montant**: {format_currency(montant)}")
+                        st.write(f"**💰 Montant**: {format_currency(montant)}")
                     
                     # Afficher la formule de calcul si elle existe
                     if ind.formule_calcul:
-                        st.caption(f"Formule: {ind.formule_calcul}")
+                        st.caption(f"ℹ️ {ind.formule_calcul}")
             
             # Ajouter un séparateur
             st.markdown("---")
     
     # Afficher les indicateurs dans chaque onglet
-    for i, axe in enumerate(["Accès aux soins", "Travail en équipe & coordination", "Système d'information"]):
+    for i, axe in enumerate(tab_names):
         with tabs[i]:
             # Séparer les indicateurs socle/prérequis des indicateurs optionnels
             indicateurs_socle = [ind for ind in indicateurs_par_axe[axe] if ind.type in ["socle", "prérequis"]]
@@ -310,7 +397,7 @@ def show():
             
             # Afficher les indicateurs socle/prérequis
             if indicateurs_socle:
-                st.subheader("Indicateurs socle / prérequis")
+                st.write("## 🔑 Indicateurs socle / prérequis")
                 for nom_groupe, indicateurs_groupe in groupes_socle.items():
                     if len(indicateurs_groupe) > 1:
                         # Groupe d'indicateurs similaires
@@ -321,7 +408,7 @@ def show():
             
             # Afficher les indicateurs optionnels
             if indicateurs_optionnels:
-                st.subheader("Indicateurs optionnels")
+                st.write("## 🌟 Indicateurs optionnels")
                 for nom_groupe, indicateurs_groupe in groupes_optionnels.items():
                     if len(indicateurs_groupe) > 1:
                         # Groupe d'indicateurs similaires
@@ -331,7 +418,7 @@ def show():
                         afficher_indicateur_simple(indicateurs_groupe[0], i)
     
     # Afficher un résumé des points
-    st.subheader("Résumé des points validés")
+    st.write("## 📊 Résumé des points validés")
     
     # Calculer les points totaux par axe
     points_par_axe = {}
@@ -390,6 +477,6 @@ def show():
     
     # Ajouter une note explicative
     st.info("""
-    **Note**: Sélectionnez le niveau validé pour chaque indicateur dans les menus déroulants.
+    ℹ️ **Note**: Sélectionnez le niveau validé pour chaque indicateur dans les menus déroulants.
     Les points variables sont calculés en fonction des paramètres définis (patientèle, nombre de PS, etc.).
     """)

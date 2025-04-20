@@ -50,20 +50,12 @@ def show():
             value=format_currency(net_revenue)
         )
     
-    # Paramètre de pondération pour les gérants
-    st.subheader("Pondération pour les gérants")
-    ponderation_gerants = st.slider(
-        "Coefficient de pondération pour les gérants",
-        min_value=1.0,
-        max_value=3.0,
-        value=1.5,
-        step=0.1,
-        help="Les gérants recevront ce coefficient multiplié par la part d'un associé normal"
-    )
-    
-    # Sauvegarder la pondération comme paramètre
-    from utils.helpers import set_parameter_value
-    set_parameter_value("ponderation_gerants", str(ponderation_gerants), "Coefficient de pondération pour les gérants")
+    # Informations sur la pondération des gérants
+    st.info("""
+    ℹ️ **Remarque concernant les gérants**: La répartition des revenus tient compte du coefficient de majoration 
+    défini pour chaque associé gérant dans la page "Gestion des associés". Ce coefficient permet d'attribuer 
+    une part plus importante aux gérants dans la répartition des revenus communs.
+    """)
     
     # Créer des onglets pour les différentes fonctionnalités
     tab1, tab2 = st.tabs(["Configuration de la répartition", "Résultats de la répartition"])

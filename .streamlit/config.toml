@@ -10,6 +10,12 @@ gatherUsageStats = false
 
 [server]
 enableStaticServing = true
+fileWatcherType = "none"
 
 [ui]
-hideTopBar = true 
+hideTopBar = true
+hideSidebarNav = true
+
+[client]
+showSidebarNavigation = false
+toolbarMode = "minimal" 
