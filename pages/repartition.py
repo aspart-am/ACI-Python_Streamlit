@@ -50,6 +50,21 @@ def show():
             value=format_currency(net_revenue)
         )
     
+    # Paramètre de pondération pour les gérants
+    st.subheader("Pondération pour les gérants")
+    ponderation_gerants = st.slider(
+        "Coefficient de pondération pour les gérants",
+        min_value=1.0,
+        max_value=3.0,
+        value=1.5,
+        step=0.1,
+        help="Les gérants recevront ce coefficient multiplié par la part d'un associé normal"
+    )
+    
+    # Sauvegarder la pondération comme paramètre
+    from utils.helpers import set_parameter_value
+    set_parameter_value("ponderation_gerants", str(ponderation_gerants), "Coefficient de pondération pour les gérants")
+    
     # Créer des onglets pour les différentes fonctionnalités
     tab1, tab2 = st.tabs(["Configuration de la répartition", "Résultats de la répartition"])
     
@@ -85,120 +100,88 @@ def show():
                     
                     # Stocker les valeurs avant de fermer la session
                     est_commun_value = repartition.est_commun
-                    mode_repartition_value = repartition.mode_repartition
                     
                     # Récupérer les attributions existantes
                     attributions = session.query(Attribution).filter_by(indicateur_id=indicateur.id).all()
-                    attributions_dict = {a.associe_id: a for a in attributions}
+                    # Créer un dictionnaire des associés déjà sélectionnés
+                    associes_selectionnes = [a.associe_id for a in attributions if a.pourcentage > 0]
                     session.close()
                     
-                    # Formulaire pour configurer la répartition
-                    col1, col2 = st.columns(2)
+                    # Option simplifié: soit tous les associés, soit des associés spécifiques
+                    est_commun = st.radio(
+                        "Type de répartition",
+                        ["Tous les associés", "Associés spécifiques"],
+                        index=0 if est_commun_value else 1,
+                        key=f"type_{indicateur.id}",
+                        horizontal=True
+                    )
                     
-                    with col1:
-                        est_commun = st.checkbox(
-                            "Répartition commune",
-                            value=est_commun_value,
-                            key=f"commun_{indicateur.id}",
-                            help="Si coché, l'indicateur est réparti entre tous les associés. Sinon, il est attribué à des associés spécifiques."
-                        )
-                    
-                    with col2:
-                        modes = {
-                            'egalitaire': 'Égalitaire (parts égales)',
-                            'proportionnel': 'Proportionnel au coefficient',
-                            'personnalise': 'Personnalisé (pourcentages manuels)'
-                        }
-                        
-                        mode_repartition = st.selectbox(
-                            "Mode de répartition",
-                            options=list(modes.keys()),
-                            format_func=lambda x: modes[x],
-                            index=list(modes.keys()).index(mode_repartition_value),
-                            key=f"mode_{indicateur.id}"
-                        )
+                    est_commun_bool = est_commun == "Tous les associés"
                     
                     # Si la configuration a changé, mettre à jour la base de données
-                    if est_commun != est_commun_value or mode_repartition != mode_repartition_value:
+                    if est_commun_bool != est_commun_value:
                         session = get_session()
                         repartition = session.query(Repartition).filter_by(indicateur_id=indicateur.id).first()
                         
                         if repartition:
-                            repartition.est_commun = est_commun
-                            repartition.mode_repartition = mode_repartition
+                            repartition.est_commun = est_commun_bool
+                            # Toujours utiliser le mode égalitaire (on a supprimé l'option proportionnelle)
+                            repartition.mode_repartition = 'egalitaire'
                             session.commit()
                         
                         session.close()
                     
-                    # Si le mode est personnalisé, afficher les pourcentages pour chaque associé
-                    if mode_repartition == 'personnalise':
-                        st.markdown("#### Pourcentages par associé")
+                    # Si on a sélectionné des associés spécifiques
+                    if est_commun == "Associés spécifiques":
+                        st.markdown("#### Sélection des associés")
                         
-                        # Créer un formulaire pour les pourcentages
-                        pourcentages = {}
-                        total_pourcentage = 0
-                        
+                        # Créer des cases à cocher pour chaque associé
+                        associes_coches = {}
                         for associe in associes:
-                            # Récupérer le pourcentage existant ou définir 0 par défaut
-                            pourcentage_existant = 0
-                            if associe.id in attributions_dict:
-                                pourcentage_existant = attributions_dict[associe.id].pourcentage
-                            
-                            pourcentage = st.slider(
+                            est_selectionne = associe.id in associes_selectionnes
+                            associes_coches[associe.id] = st.checkbox(
                                 f"{associe.prenom} {associe.nom}",
-                                min_value=0.0,
-                                max_value=100.0,
-                                value=float(pourcentage_existant),
-                                step=1.0,
-                                key=f"pct_{indicateur.id}_{associe.id}"
+                                value=est_selectionne,
+                                key=f"select_{indicateur.id}_{associe.id}"
                             )
-                            
-                            pourcentages[associe.id] = pourcentage
-                            total_pourcentage += pourcentage
                         
-                        # Afficher le total des pourcentages
-                        if total_pourcentage != 100:
-                            st.warning(f"Le total des pourcentages est de {total_pourcentage}%. Il devrait être de 100%.")
-                        else:
-                            st.success("Le total des pourcentages est de 100%.")
-                        
-                        # Bouton pour sauvegarder les pourcentages
-                        if st.button("Sauvegarder les pourcentages", key=f"save_{indicateur.id}"):
-                            if total_pourcentage == 100:
+                        # Bouton pour sauvegarder la sélection
+                        if st.button("Sauvegarder la sélection", key=f"save_{indicateur.id}"):
+                            # Vérifier qu'au moins un associé est sélectionné
+                            if not any(associes_coches.values()):
+                                st.error("Vous devez sélectionner au moins un associé.")
+                            else:
                                 session = get_session()
                                 
-                                # Mettre à jour ou créer les attributions
-                                for associe_id, pourcentage in pourcentages.items():
-                                    attribution = session.query(Attribution).filter_by(
+                                # Supprimer toutes les attributions existantes
+                                session.query(Attribution).filter_by(indicateur_id=indicateur.id).delete()
+                                
+                                # Compter combien d'associés sont sélectionnés
+                                nb_selectionnes = sum(1 for est_coche in associes_coches.values() if est_coche)
+                                
+                                # Créer de nouvelles attributions
+                                for associe_id, est_coche in associes_coches.items():
+                                    pourcentage = 100 / nb_selectionnes if est_coche else 0
+                                    attribution = Attribution(
                                         indicateur_id=indicateur.id,
-                                        associe_id=associe_id
-                                    ).first()
-                                    
-                                    if attribution:
-                                        attribution.pourcentage = pourcentage
-                                    else:
-                                        attribution = Attribution(
-                                            indicateur_id=indicateur.id,
-                                            associe_id=associe_id,
-                                            pourcentage=pourcentage
-                                        )
-                                        session.add(attribution)
+                                        associe_id=associe_id,
+                                        pourcentage=pourcentage
+                                    )
+                                    session.add(attribution)
                                 
                                 session.commit()
                                 session.close()
                                 
-                                st.success("Pourcentages sauvegardés avec succès.")
-                            else:
-                                st.error("Le total des pourcentages doit être de 100% pour sauvegarder.")
+                                st.success("Sélection sauvegardée avec succès.")
                     
-                    # Si le mode n'est pas personnalisé, créer des attributions par défaut
+                    # Si tous les associés sont sélectionnés, les pourcentages sont calculés automatiquement
                     else:
                         session = get_session()
                         
-                        # Supprimer les attributions personnalisées existantes
+                        # Supprimer les attributions existantes
                         session.query(Attribution).filter_by(indicateur_id=indicateur.id).delete()
                         
-                        # Créer des attributions par défaut pour tous les associés
+                        # Créer des attributions pour tous les associés
                         for associe in associes:
                             attribution = Attribution(
                                 indicateur_id=indicateur.id,
@@ -226,7 +209,6 @@ def show():
                 "Associé": [resultats[a_id]["nom"] for a_id in resultats],
                 "Fonction": [resultats[a_id]["fonction"] for a_id in resultats],
                 "Gérant": ["Oui" if resultats[a_id]["est_gerant"] else "Non" for a_id in resultats],
-                "Coefficient": [f"{resultats[a_id]['coefficient']:.2f}" for a_id in resultats],
                 "Part fixe": [format_currency(resultats[a_id]["part_fixe"]) for a_id in resultats],
                 "Part variable": [format_currency(resultats[a_id]["part_variable"]) for a_id in resultats],
                 "Total": [format_currency(resultats[a_id]["total"]) for a_id in resultats],
@@ -294,11 +276,12 @@ def show():
     # Ajouter une note explicative
     st.markdown("---")
     st.info("""
-    **Note sur les modes de répartition**:
+    **Note sur la répartition**:
     
-    - **Égalitaire**: Chaque associé reçoit une part égale des revenus de l'indicateur.
-    - **Proportionnel au coefficient**: La répartition est proportionnelle au coefficient de majoration de chaque associé (les gérants avec un coefficient plus élevé reçoivent une part plus importante).
-    - **Personnalisé**: Vous définissez manuellement le pourcentage attribué à chaque associé.
+    - **Tous les associés**: L'indicateur est réparti entre tous les associés, avec une pondération pour les gérants.
+    - **Associés spécifiques**: Seuls les associés sélectionnés reçoivent une part de l'indicateur, répartie équitablement entre eux.
     
     La part fixe correspond aux indicateurs socle/prérequis, tandis que la part variable correspond aux indicateurs optionnels.
+    
+    Le coefficient de pondération des gérants multiplie leur part par rapport à un associé normal.
     """)

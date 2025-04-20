@@ -283,6 +283,19 @@ def get_associes_repartition():
     total_charges = calculate_charges_total()
     net_revenue = total_aci - total_charges
     
+    # Si net_revenue est négatif ou nul, pas de répartition à faire
+    if net_revenue <= 0:
+        return {}
+    
+    # Récupérer le coefficient de pondération pour les gérants
+    ponderation_gerants = float(get_parameter_value("ponderation_gerants") or 1.5)
+    
+    # Étape 1: Calculer d'abord les points et pourcentages relatifs pour chaque associé
+    # (sans convertir en euros)
+    pourcentages_associes = {}
+    points_associes = {}
+    points_totaux = 0
+    
     # Initialiser les résultats
     resultats = {}
     for associe in associes:
@@ -293,10 +306,12 @@ def get_associes_repartition():
             "coefficient": associe.coefficient_majoration,
             "part_fixe": 0,
             "part_variable": 0,
-            "total": 0
+            "total": 0,
+            "pourcentage": 0
         }
+        points_associes[associe.id] = {"points_fixes": 0, "points_variables": 0}
     
-    # Calculer la part de chaque associé
+    # Calculer les points pour chaque associé
     for attribution in attributions:
         if attribution.indicateur_id in indicateurs and indicateurs[attribution.indicateur_id].est_valide:
             indicateur = indicateurs[attribution.indicateur_id]
@@ -306,11 +321,10 @@ def get_associes_repartition():
             repartition = session.query(Repartition).filter_by(indicateur_id=indicateur.id).first()
             session.close()
             
-            # Calculer la valeur de cet indicateur
+            # Calculer les points pour cet indicateur
             patientele = int(get_parameter_value("patientele") or 4000)
             nombre_ps = int(get_parameter_value("nombre_ps") or 10)
             taux_dossiers = float(get_parameter_value("taux_dossiers") or 5) / 100
-            valeur_point = float(get_parameter_value("valeur_point") or 7)
             
             points = calculate_indicator_points(
                 indicateur.id, 
@@ -319,39 +333,58 @@ def get_associes_repartition():
                 taux_dossiers=taux_dossiers
             )
             
-            valeur_euros = points * valeur_point
-            
-            # Répartir selon le mode de répartition
+            # Répartir les points selon le mode de répartition
             if repartition and repartition.est_commun:
-                # Répartition commune entre tous les associés
-                if repartition.mode_repartition == 'egalitaire':
-                    part_associe = valeur_euros / len(associes)
-                    if indicateur.type == 'socle' or indicateur.type == 'prérequis':
-                        resultats[attribution.associe_id]["part_fixe"] += part_associe
-                    else:
-                        resultats[attribution.associe_id]["part_variable"] += part_associe
+                # Répartition commune entre tous les associés avec pondération des gérants
+                # Calculer le total des coefficients pour la pondération
+                total_poids = sum(ponderation_gerants if a.est_gerant else 1.0 for a in associes)
                 
-                elif repartition.mode_repartition == 'proportionnel':
-                    # Répartition proportionnelle au coefficient de majoration
-                    total_coefficients = sum(a.coefficient_majoration for a in associes)
-                    part_associe = valeur_euros * (resultats[attribution.associe_id]["coefficient"] / total_coefficients)
-                    
-                    if indicateur.type == 'socle' or indicateur.type == 'prérequis':
-                        resultats[attribution.associe_id]["part_fixe"] += part_associe
-                    else:
-                        resultats[attribution.associe_id]["part_variable"] += part_associe
+                # Calculer la part de base en points (pour un associé normal)
+                part_base_points = points / total_poids
+                
+                # Calculer les points pour cet associé
+                coefficient = ponderation_gerants if resultats[attribution.associe_id]["est_gerant"] else 1.0
+                part_points = part_base_points * coefficient
+                
+                if indicateur.type == 'socle' or indicateur.type == 'prérequis':
+                    points_associes[attribution.associe_id]["points_fixes"] += part_points
+                else:
+                    points_associes[attribution.associe_id]["points_variables"] += part_points
             
             else:
                 # Répartition personnalisée selon les pourcentages d'attribution
-                part_associe = valeur_euros * (attribution.pourcentage / 100)
+                part_points = points * (attribution.pourcentage / 100)
                 
                 if indicateur.type == 'socle' or indicateur.type == 'prérequis':
-                    resultats[attribution.associe_id]["part_fixe"] += part_associe
+                    points_associes[attribution.associe_id]["points_fixes"] += part_points
                 else:
-                    resultats[attribution.associe_id]["part_variable"] += part_associe
+                    points_associes[attribution.associe_id]["points_variables"] += part_points
     
-    # Calculer les totaux
+    # Calculer les points totaux pour tous les associés
+    for associe_id in points_associes:
+        points_associes[associe_id]["total"] = points_associes[associe_id]["points_fixes"] + points_associes[associe_id]["points_variables"]
+        points_totaux += points_associes[associe_id]["total"]
+    
+    # Calculer les pourcentages de chaque associé sur le total des points
+    if points_totaux > 0:
+        for associe_id in points_associes:
+            pourcentages_associes[associe_id] = points_associes[associe_id]["total"] / points_totaux
+    
+    # Étape 2: Répartir le revenu net selon les pourcentages calculés
     for associe_id in resultats:
-        resultats[associe_id]["total"] = resultats[associe_id]["part_fixe"] + resultats[associe_id]["part_variable"]
+        if associe_id in pourcentages_associes:
+            # Calculer le montant en euros après déduction des charges
+            montant_total = net_revenue * pourcentages_associes[associe_id]
+            
+            # Répartition proportionnelle fixe/variable basée sur les points
+            total_points = points_associes[associe_id]["total"]
+            if total_points > 0:
+                ratio_fixe = points_associes[associe_id]["points_fixes"] / total_points
+                ratio_variable = points_associes[associe_id]["points_variables"] / total_points
+                
+                resultats[associe_id]["part_fixe"] = montant_total * ratio_fixe
+                resultats[associe_id]["part_variable"] = montant_total * ratio_variable
+                resultats[associe_id]["total"] = montant_total
+                resultats[associe_id]["pourcentage"] = pourcentages_associes[associe_id] * 100
     
     return resultats

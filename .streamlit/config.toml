@@ -1,0 +1,15 @@
+[theme]
+primaryColor = "#006deb"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#f9fafb"
+textColor = "#2d3e50"
+font = "sans-serif"
+
+[browser]
+gatherUsageStats = false
+
+[server]
+enableStaticServing = true
+
+[ui]
+hideTopBar = true 

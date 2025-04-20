@@ -1,20 +1,32 @@
-/* Style personnalisé pour l'application ACI - Inspiré de Doctolib */
+/* Style personnalisé pour l'application ACI - Style Doctolib */
 
-/* Variables de couleurs */
+/* Variables de couleurs - Palette Doctolib */
 :root {
-    --primary-color: #0596DE;
-    --primary-light: #E8F5FC;
-    --primary-dark: #0070CC;
-    --secondary-color: #2D3E50;
-    --success-color: #35B984;
-    --warning-color: #F5A623;
-    --danger-color: #E74C3C;
-    --light-gray: #F8F9FA;
-    --medium-gray: #E9ECEF;
-    --dark-gray: #6C757D;
+    --primary-color: #006deb; /* Bleu Doctolib */
+    --primary-light: #e6f2ff;
+    --primary-dark: #0053b3;
+    --secondary-color: #2d3e50;
+    --success-color: #19b87a; /* Vert Doctolib */
+    --warning-color: #ffab2e;
+    --danger-color: #ff4050; /* Rouge Doctolib */
+    --light-gray: #f9fafb;
+    --medium-gray: #edf0f2;
+    --dark-gray: #68717a;
     --white: #FFFFFF;
     --black: #000000;
-    --font-family: 'Lato', sans-serif;
+    --font-family: 'Inter', 'Segoe UI', 'Helvetica Neue', sans-serif;
+    --border-radius: 8px;
+    --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Force le mode clair pour tout Streamlit */
+.st-emotion-cache-eczf16 {
+    background-color: var(--white) !important;
+    color: var(--secondary-color) !important;
+}
+
+.st-emotion-cache-ffhzg2 {
+    background-color: var(--light-gray) !important;
 }
 
 /* Style général */
@@ -22,6 +34,20 @@
     background-color: var(--light-gray);
     font-family: var(--font-family);
     color: var(--secondary-color);
+}
+
+/* Forcer le mode clair pour toute l'application */
+.stApp {
+    background-color: var(--white) !important;
+    color: var(--secondary-color) !important;
+}
+
+/* Typographie générale */
+body, p, div, span, li {
+    font-family: var(--font-family) !important;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--secondary-color) !important;
 }
 
 /* En-tête */
@@ -34,34 +60,37 @@
 h1 {
     color: var(--primary-color);
     font-weight: 700;
-    font-size: 2.2rem;
-    margin-bottom: 1.5rem;
+    font-size: 28px;
+    margin-bottom: 24px;
+    letter-spacing: -0.4px;
 }
 
 /* Sous-titres */
 h2 {
     color: var(--secondary-color);
     font-weight: 600;
-    font-size: 1.8rem;
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
+    font-size: 22px;
+    margin-top: 32px;
+    margin-bottom: 16px;
+    letter-spacing: -0.2px;
 }
 
 h3 {
     color: var(--secondary-color);
     font-weight: 600;
-    font-size: 1.4rem;
-    margin-top: 1.2rem;
-    margin-bottom: 0.8rem;
+    font-size: 18px;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    letter-spacing: -0.1px;
 }
 
 /* Cartes */
-.css-1r6slb0 {
+div.element-container div.stMarkdown {
     background-color: var(--white);
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 20px;
+    margin-bottom: 16px;
 }
 
 /* Boutons */
@@ -69,15 +98,19 @@ h3 {
     background-color: var(--primary-color);
     color: var(--white);
     border: none;
-    border-radius: 5px;
-    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    padding: 10px 20px;
     font-weight: 600;
-    transition: all 0.3s ease;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    height: auto;
+    line-height: 1.2;
 }
 
 .stButton > button:hover {
     background-color: var(--primary-dark);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 109, 235, 0.2);
+    transform: translateY(-1px);
 }
 
 /* Boutons secondaires */
@@ -98,25 +131,32 @@ h3 {
 }
 
 .danger-button > button:hover {
-    background-color: #c0392b;
+    background-color: #e5394d;
 }
 
 /* Inputs */
 .stTextInput > div > div > input {
-    border-radius: 5px;
+    border-radius: var(--border-radius);
     border: 1px solid var(--medium-gray);
-    padding: 0.5rem;
+    padding: 10px 12px;
+    background-color: var(--white);
+    color: var(--secondary-color);
+    font-size: 14px;
+    transition: all 0.2s ease;
 }
 
 .stTextInput > div > div > input:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(5, 150, 222, 0.2);
+    box-shadow: 0 0 0 2px rgba(0, 109, 235, 0.2);
 }
 
 /* Select boxes */
 .stSelectbox > div > div > div {
-    border-radius: 5px;
+    border-radius: var(--border-radius);
     border: 1px solid var(--medium-gray);
+    background-color: var(--white);
+    color: var(--secondary-color);
+    font-size: 14px;
 }
 
 /* Checkboxes */
@@ -130,88 +170,192 @@ h3 {
     background-color: var(--primary-color);
 }
 
+/* Radio buttons */
+.stRadio > div {
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    padding: 4px 8px;
+}
+
+.stRadio > div > div > label {
+    color: var(--secondary-color);
+    font-size: 14px;
+}
+
 /* Tabs */
 .stTabs [data-baseweb="tab-list"] {
     gap: 2px;
+    background-color: var(--light-gray);
+    padding: 4px;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
 }
 
 .stTabs [data-baseweb="tab"] {
-    height: 50px;
+    height: 44px;
     white-space: pre-wrap;
     background-color: var(--white);
     color: var(--secondary-color);
-    border-radius: 5px 5px 0 0;
-    border: 1px solid var(--medium-gray);
-    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    border: none;
+    font-weight: 500;
+    font-size: 14px;
+    padding: 8px 16px;
 }
 
 .stTabs [aria-selected="true"] {
     background-color: var(--primary-color);
     color: var(--white);
+    font-weight: 600;
+}
+
+.stTabs [data-baseweb="tab-panel"] {
+    background-color: var(--white);
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+    padding: 20px;
+    box-shadow: var(--box-shadow);
 }
 
 /* Tableaux */
 .stDataFrame {
-    border-radius: 10px;
+    border-radius: var(--border-radius);
     overflow: hidden;
+    box-shadow: var(--box-shadow);
 }
 
 .stDataFrame thead tr th {
     background-color: var(--primary-color);
     color: var(--white);
     font-weight: 600;
+    padding: 12px 16px;
+    font-size: 14px;
 }
 
 .stDataFrame tbody tr:nth-child(even) {
     background-color: var(--light-gray);
 }
 
+.stDataFrame tbody tr {
+    color: var(--secondary-color);
+    font-size: 14px;
+}
+
+.stDataFrame tbody tr td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--medium-gray);
+}
+
 /* Métriques */
 .stMetric {
     background-color: var(--white);
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    padding: 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 16px;
+    transition: transform 0.2s ease;
+}
+
+.stMetric:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
 }
 
 .stMetric label {
     color: var(--dark-gray);
-    font-weight: 600;
+    font-weight: 500;
+    font-size: 14px;
 }
 
 .stMetric [data-testid="stMetricValue"] {
     color: var(--primary-color);
     font-weight: 700;
+    font-size: 24px;
 }
 
 /* Alertes */
 .stAlert {
-    border-radius: 5px;
+    border-radius: var(--border-radius);
+    border: none;
+    box-shadow: var(--box-shadow);
+    padding: 16px;
+    margin: 16px 0;
 }
 
 /* Sidebar */
-.css-1d391kg {
-    background-color: var(--white);
+.css-1d391kg, [data-testid="stSidebar"] {
+    background-color: var(--white) !important;
+    border-right: 1px solid var(--medium-gray);
+}
+
+[data-testid="stSidebar"] > div:first-child {
+    padding: 24px 16px;
+}
+
+[data-testid="stSidebar"] header {
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: 16px;
+    margin: -24px -16px 24px;
+}
+
+[data-testid="stSidebar"] header h1 {
+    color: var(--white);
+    font-size: 18px;
+    margin: 0;
 }
 
 .css-1d391kg .stButton > button {
     width: 100%;
+    margin-top: 8px;
 }
 
-/* Personnalisation des onglets */
-.tab-content {
-    background-color: var(--white);
-    border-radius: 0 10px 10px 10px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+/* Force la coloration du texte dans le mode clair */
+p, li, div, span {
+    color: var(--secondary-color) !important;
+}
+
+/* Force le fond blanc des conteneurs */
+[data-testid="stVerticalBlock"] {
+    background-color: var(--white) !important;
+}
+
+/* Force le mode clair pour les expanders */
+[data-testid="stExpander"] {
+    background-color: var(--white) !important;
+    border: 1px solid var(--medium-gray) !important;
+    border-radius: var(--border-radius) !important;
+    box-shadow: var(--box-shadow) !important;
+    margin-bottom: 16px;
+}
+
+[data-testid="stExpanderToggleIcon"] {
+    color: var(--primary-color) !important;
+}
+
+[data-testid="stExpander"] > div {
+    color: var(--secondary-color) !important;
+    padding: 16px !important;
+}
+
+/* Sliders */
+[data-testid="stSlider"] {
+    padding: 16px 0;
+}
+
+[data-testid="stThumbValue"] {
+    color: var(--primary-color) !important;
+    font-weight: 600;
+}
+
+/* Progress bar */
+.stProgress > div > div > div {
+    background-color: var(--primary-color);
 }
 
 /* Badges */
 .badge {
     display: inline-block;
-    padding: 0.25rem 0.5rem;
-    border-radius: 50px;
-    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
     font-weight: 600;
     text-align: center;
     white-space: nowrap;
@@ -241,11 +385,17 @@ h3 {
 /* Cartes d'indicateurs */
 .indicator-card {
     background-color: var(--white);
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    padding: 1rem;
-    margin-bottom: 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 16px;
+    margin-bottom: 16px;
     border-left: 4px solid var(--primary-color);
+    transition: transform 0.2s ease;
+}
+
+.indicator-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
 }
 
 .indicator-card.validated {
@@ -259,40 +409,41 @@ h3 {
 /* Graphiques */
 .chart-container {
     background-color: var(--white);
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    padding: 1rem;
-    margin-bottom: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 16px;
+    margin-bottom: 24px;
 }
 
 /* Formulaires */
 .form-container {
     background-color: var(--white);
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 24px;
+    margin-bottom: 24px;
 }
 
 .form-container h3 {
     margin-top: 0;
-    margin-bottom: 1rem;
+    margin-bottom: 16px;
     color: var(--primary-color);
+    font-size: 18px;
 }
 
 /* Séparateur */
 hr {
-    margin: 2rem 0;
+    margin: 32px 0;
     border: 0;
     border-top: 1px solid var(--medium-gray);
 }
 
 /* Footer */
 footer {
-    margin-top: 3rem;
-    padding-top: 1rem;
+    margin-top: 48px;
+    padding-top: 16px;
     border-top: 1px solid var(--medium-gray);
     text-align: center;
     color: var(--dark-gray);
-    font-size: 0.8rem;
+    font-size: 12px;
 }

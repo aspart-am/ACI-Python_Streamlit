@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import re
 from utils.helpers import (
     calculate_indicator_points,
     format_currency,
@@ -93,8 +94,22 @@ def show():
         if indicateur.axe in indicateurs_par_axe:
             indicateurs_par_axe[indicateur.axe].append(indicateur)
     
-    # Fonction pour afficher un indicateur
-    def afficher_indicateur(indicateur, tab_index):
+    # Fonction pour regrouper les indicateurs similaires
+    def grouper_indicateurs(indicateurs):
+        groupes = {}
+        for indicateur in indicateurs:
+            # Extraire le nom de base (sans le niveau/seuil/variante)
+            nom_base = re.sub(r' - Niveau \d+| \(\d+% médecins\)| \(avec IPA\)| \(sans IPA\)| - Variable.*| - Fixe.*| - Activation.*| - Plan.*', '', indicateur.nom)
+            
+            # Regrouper par nom de base
+            if nom_base not in groupes:
+                groupes[nom_base] = []
+            groupes[nom_base].append(indicateur)
+        
+        return groupes
+    
+    # Fonction pour afficher un indicateur simple
+    def afficher_indicateur_simple(indicateur, tab_index):
         with st.container():
             col1, col2, col3, col4 = st.columns([3, 1, 1, 1])
             
@@ -140,6 +155,148 @@ def show():
             # Ajouter un séparateur
             st.markdown("---")
     
+    # Fonction pour afficher un groupe d'indicateurs
+    def afficher_groupe_indicateurs(nom_groupe, indicateurs_groupe, tab_index):
+        with st.container():
+            st.subheader(nom_groupe)
+            
+            # Créer des options pour le menu déroulant
+            options = ["Non validé"]
+            id_map = {0: None}  # Pour mapper l'option sélectionnée à l'ID de l'indicateur
+            
+            for i, ind in enumerate(indicateurs_groupe):
+                # Extraire le niveau/variante pour l'affichage
+                if " - Niveau " in ind.nom:
+                    niveau = ind.nom.split(" - Niveau ")[1]
+                    options.append(f"Niveau {niveau}")
+                elif " - Variable " in ind.nom:
+                    variante = ind.nom.split(" - Variable ")[1]
+                    options.append(f"Variable: {variante}")
+                elif " - Fixe" in ind.nom:
+                    options.append("Fixe")
+                elif "(avec IPA)" in ind.nom:
+                    options.append("Avec IPA")
+                elif "(sans IPA)" in ind.nom:
+                    options.append("Sans IPA")
+                elif " médecins)" in ind.nom:
+                    pourcentage = ind.nom.split("(")[1].split(" médecins")[0]
+                    options.append(f"{pourcentage}")
+                elif " - Plan" in ind.nom:
+                    options.append("Plan")
+                elif " - Activation" in ind.nom:
+                    options.append("Activation")
+                else:
+                    options.append(ind.nom)
+                
+                id_map[i+1] = ind.id
+            
+            # Déterminer l'option sélectionnée par défaut
+            option_defaut = 0
+            for i, ind in enumerate(indicateurs_groupe):
+                if ind.est_valide:
+                    option_defaut = i+1
+                    break
+            
+            # Afficher le menu déroulant ou les cases à cocher
+            if len(indicateurs_groupe) <= 3 and all(ind.type == "socle" for ind in indicateurs_groupe):
+                # Utiliser des cases à cocher pour les indicateurs socle qui vont ensemble
+                selected_ids = []
+                for ind in indicateurs_groupe:
+                    if " - Variable " in ind.nom:
+                        variante = ind.nom.split(" - Variable ")[1]
+                        label = f"Variable: {variante}"
+                    elif " - Fixe" in ind.nom:
+                        label = "Fixe"
+                    elif "(avec IPA)" in ind.nom:
+                        label = "Avec IPA"
+                    elif "(sans IPA)" in ind.nom:
+                        label = "Sans IPA"
+                    elif " - Plan" in ind.nom:
+                        label = "Plan"
+                    elif " - Activation" in ind.nom:
+                        label = "Activation"
+                    else:
+                        label = ind.nom
+                    
+                    est_valide = st.checkbox(
+                        label,
+                        value=ind.est_valide,
+                        key=f"check_{ind.id}"
+                    )
+                    
+                    if est_valide != ind.est_valide:
+                        session = get_session()
+                        indic = session.query(Indicateur).filter_by(id=ind.id).first()
+                        indic.est_valide = est_valide
+                        session.commit()
+                        session.close()
+                        selected_ids.append(ind.id)
+                
+                if selected_ids:
+                    st.rerun()
+            else:
+                # Utiliser un menu déroulant pour les indicateurs s'excluant mutuellement
+                selected_option = st.selectbox(
+                    "Niveau validé",
+                    options=options,
+                    index=option_defaut,
+                    key=f"select_{nom_groupe}"
+                )
+                
+                # Mettre à jour la base de données
+                selected_id = id_map[options.index(selected_option)]
+                
+                if selected_id:
+                    # Vérifier si le statut a changé
+                    changed = False
+                    session = get_session()
+                    
+                    for ind in indicateurs_groupe:
+                        indic = session.query(Indicateur).filter_by(id=ind.id).first()
+                        if ind.id == selected_id and not indic.est_valide:
+                            indic.est_valide = True
+                            changed = True
+                        elif ind.id != selected_id and indic.est_valide:
+                            indic.est_valide = False
+                            changed = True
+                    
+                    if changed:
+                        session.commit()
+                        st.rerun()
+                    
+                    session.close()
+            
+            # Afficher les détails des indicateurs validés
+            for ind in indicateurs_groupe:
+                if ind.est_valide:
+                    col1, col2, col3 = st.columns([2, 1, 1])
+                    
+                    with col1:
+                        points_fixes = ind.points_fixes
+                        points_variables = ind.points_variables
+                        st.write(f"**Points**: {points_fixes} fixes + {points_variables} variables")
+                    
+                    with col2:
+                        # Calculer les points totaux
+                        points_totaux = calculate_indicator_points(
+                            ind.id,
+                            patientele=patientele,
+                            nombre_ps=nombre_ps,
+                            taux_dossiers=taux_dossiers/100
+                        )
+                        st.write(f"**Total points**: {points_totaux:.1f}")
+                    
+                    with col3:
+                        montant = points_totaux * valeur_point
+                        st.write(f"**Montant**: {format_currency(montant)}")
+                    
+                    # Afficher la formule de calcul si elle existe
+                    if ind.formule_calcul:
+                        st.caption(f"Formule: {ind.formule_calcul}")
+            
+            # Ajouter un séparateur
+            st.markdown("---")
+    
     # Afficher les indicateurs dans chaque onglet
     for i, axe in enumerate(["Accès aux soins", "Travail en équipe & coordination", "Système d'information"]):
         with tabs[i]:
@@ -147,17 +304,31 @@ def show():
             indicateurs_socle = [ind for ind in indicateurs_par_axe[axe] if ind.type in ["socle", "prérequis"]]
             indicateurs_optionnels = [ind for ind in indicateurs_par_axe[axe] if ind.type == "optionnel"]
             
+            # Grouper les indicateurs
+            groupes_socle = grouper_indicateurs(indicateurs_socle)
+            groupes_optionnels = grouper_indicateurs(indicateurs_optionnels)
+            
             # Afficher les indicateurs socle/prérequis
             if indicateurs_socle:
                 st.subheader("Indicateurs socle / prérequis")
-                for indicateur in indicateurs_socle:
-                    afficher_indicateur(indicateur, i)
+                for nom_groupe, indicateurs_groupe in groupes_socle.items():
+                    if len(indicateurs_groupe) > 1:
+                        # Groupe d'indicateurs similaires
+                        afficher_groupe_indicateurs(nom_groupe, indicateurs_groupe, i)
+                    else:
+                        # Indicateur unique
+                        afficher_indicateur_simple(indicateurs_groupe[0], i)
             
             # Afficher les indicateurs optionnels
             if indicateurs_optionnels:
                 st.subheader("Indicateurs optionnels")
-                for indicateur in indicateurs_optionnels:
-                    afficher_indicateur(indicateur, i)
+                for nom_groupe, indicateurs_groupe in groupes_optionnels.items():
+                    if len(indicateurs_groupe) > 1:
+                        # Groupe d'indicateurs similaires
+                        afficher_groupe_indicateurs(nom_groupe, indicateurs_groupe, i)
+                    else:
+                        # Indicateur unique
+                        afficher_indicateur_simple(indicateurs_groupe[0], i)
     
     # Afficher un résumé des points
     st.subheader("Résumé des points validés")
@@ -219,6 +390,6 @@ def show():
     
     # Ajouter une note explicative
     st.info("""
-    **Note**: Cochez les indicateurs validés pour calculer les points correspondants.
+    **Note**: Sélectionnez le niveau validé pour chaque indicateur dans les menus déroulants.
     Les points variables sont calculés en fonction des paramètres définis (patientèle, nombre de PS, etc.).
     """)
