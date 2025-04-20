@@ -91,7 +91,7 @@ def show():
                     if st.button("Modifier cette charge", key="btn_edit_charge"):
                         # Stocker l'ID de la charge à modifier dans la session
                         st.session_state.charge_a_modifier = charge_id
-                        st.experimental_rerun()
+                        st.rerun()
                 
                 with col_delete:
                     if st.button("Supprimer cette charge", key="btn_delete_charge"):
@@ -103,7 +103,7 @@ def show():
                                 session.delete(charge)
                                 session.commit()
                                 st.success(f"La charge '{charge.libelle}' a été supprimée avec succès.")
-                                st.experimental_rerun()
+                                st.rerun()
                             session.close()
     
     with col2:
@@ -172,7 +172,7 @@ def show():
                             
                             # Réinitialiser le mode modification
                             del st.session_state.charge_a_modifier
-                            st.experimental_rerun()
+                            st.rerun()
                         
                         session.close()
                 
@@ -180,7 +180,7 @@ def show():
                     if st.button("Annuler", key="btn_cancel_charge"):
                         # Réinitialiser le mode modification
                         del st.session_state.charge_a_modifier
-                        st.experimental_rerun()
+                        st.rerun()
         
         else:
             st.subheader("Ajouter une nouvelle charge")
@@ -228,7 +228,7 @@ def show():
                     session.close()
                     
                     st.success(f"La charge '{libelle}' a été ajoutée avec succès.")
-                    st.experimental_rerun()
+                    st.rerun()
                 else:
                     st.error("Veuillez remplir le libellé et saisir un montant supérieur à 0.")
         
@@ -280,7 +280,7 @@ def show():
                         session.close()
                         
                         st.success(f"{len(df)} charges ont été importées avec succès.")
-                        st.experimental_rerun()
+                        st.rerun()
             
             except Exception as e:
                 st.error(f"Une erreur s'est produite lors de l'import : {str(e)}")

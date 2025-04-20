@@ -169,7 +169,7 @@ def show():
                     initialize_all_data()
                     
                     st.success("Base de données réinitialisée avec succès !")
-                    st.experimental_rerun()
+                    st.rerun()
         
         with col2:
             # Exporter la base de données
@@ -202,7 +202,7 @@ def show():
                     f.write(uploaded_file.getbuffer())
                 
                 st.success("Base de données importée avec succès !")
-                st.experimental_rerun()
+                st.rerun()
     
     with tab3:
         st.subheader("Paramètres des indicateurs")

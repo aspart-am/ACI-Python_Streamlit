@@ -6,10 +6,41 @@ from pages.repartition import show as repartition_show
 from pages.charges import show as charges_show
 from pages.parametres import show as parametres_show
 
-# Alias pour faciliter l'importation
-dashboard = type('Dashboard', (), {'show': dashboard_show})()
-indicateurs = type('Indicateurs', (), {'show': indicateurs_show})()
-associes = type('Associes', (), {'show': associes_show})()
-repartition = type('Repartition', (), {'show': repartition_show})()
-charges = type('Charges', (), {'show': charges_show})()
-parametres = type('Parametres', (), {'show': parametres_show})()
+# Créer des classes simples pour chaque page
+class Dashboard:
+    @staticmethod
+    def show(*args, **kwargs):
+        dashboard_show()
+
+class Indicateurs:
+    @staticmethod
+    def show(*args, **kwargs):
+        indicateurs_show()
+
+class Associes:
+    @staticmethod
+    def show(*args, **kwargs):
+        associes_show()
+
+class Repartition:
+    @staticmethod
+    def show(*args, **kwargs):
+        repartition_show()
+
+class Charges:
+    @staticmethod
+    def show(*args, **kwargs):
+        charges_show()
+
+class Parametres:
+    @staticmethod
+    def show(*args, **kwargs):
+        parametres_show()
+
+# Créer des instances de chaque classe
+dashboard = Dashboard()
+indicateurs = Indicateurs()
+associes = Associes()
+repartition = Repartition()
+charges = Charges()
+parametres = Parametres()

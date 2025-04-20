@@ -83,6 +83,10 @@ def show():
                         session.add(repartition)
                         session.commit()
                     
+                    # Stocker les valeurs avant de fermer la session
+                    est_commun_value = repartition.est_commun
+                    mode_repartition_value = repartition.mode_repartition
+                    
                     # Récupérer les attributions existantes
                     attributions = session.query(Attribution).filter_by(indicateur_id=indicateur.id).all()
                     attributions_dict = {a.associe_id: a for a in attributions}
@@ -94,7 +98,7 @@ def show():
                     with col1:
                         est_commun = st.checkbox(
                             "Répartition commune",
-                            value=repartition.est_commun,
+                            value=est_commun_value,
                             key=f"commun_{indicateur.id}",
                             help="Si coché, l'indicateur est réparti entre tous les associés. Sinon, il est attribué à des associés spécifiques."
                         )
@@ -110,12 +114,12 @@ def show():
                             "Mode de répartition",
                             options=list(modes.keys()),
                             format_func=lambda x: modes[x],
-                            index=list(modes.keys()).index(repartition.mode_repartition),
+                            index=list(modes.keys()).index(mode_repartition_value),
                             key=f"mode_{indicateur.id}"
                         )
                     
                     # Si la configuration a changé, mettre à jour la base de données
-                    if est_commun != repartition.est_commun or mode_repartition != repartition.mode_repartition:
+                    if est_commun != est_commun_value or mode_repartition != mode_repartition_value:
                         session = get_session()
                         repartition = session.query(Repartition).filter_by(indicateur_id=indicateur.id).first()
                         

@@ -53,7 +53,7 @@ def show():
                     if st.button("Modifier cet associé", key="btn_edit"):
                         # Stocker l'ID de l'associé à modifier dans la session
                         st.session_state.associe_a_modifier = associe_id
-                        st.experimental_rerun()
+                        st.rerun()
                 
                 with col_delete:
                     if st.button("Supprimer cet associé", key="btn_delete"):
@@ -65,7 +65,7 @@ def show():
                                 session.delete(associe)
                                 session.commit()
                                 st.success(f"L'associé {associe.prenom} {associe.nom} a été supprimé avec succès.")
-                                st.experimental_rerun()
+                                st.rerun()
                             session.close()
     
     with col2:
@@ -114,7 +114,7 @@ def show():
                             
                             # Réinitialiser le mode modification
                             del st.session_state.associe_a_modifier
-                            st.experimental_rerun()
+                            st.rerun()
                         
                         session.close()
                 
@@ -122,7 +122,7 @@ def show():
                     if st.button("Annuler", key="btn_cancel"):
                         # Réinitialiser le mode modification
                         del st.session_state.associe_a_modifier
-                        st.experimental_rerun()
+                        st.rerun()
         
         else:
             st.subheader("Ajouter un nouvel associé")
@@ -159,7 +159,7 @@ def show():
                     session.close()
                     
                     st.success(f"L'associé {prenom} {nom} a été ajouté avec succès.")
-                    st.experimental_rerun()
+                    st.rerun()
                 else:
                     st.error("Veuillez remplir au moins les champs Nom et Prénom.")
     

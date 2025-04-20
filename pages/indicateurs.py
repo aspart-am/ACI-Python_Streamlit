@@ -68,7 +68,7 @@ def show():
             set_parameter_value("taux_dossiers", str(new_taux_dossiers))
             set_parameter_value("valeur_point", str(new_valeur_point))
             st.success("Paramètres mis à jour avec succès !")
-            st.experimental_rerun()
+            st.rerun()
     
     # Créer des onglets pour chaque axe
     tabs = st.tabs([
@@ -111,7 +111,7 @@ def show():
                     indic.est_valide = est_valide
                     session.commit()
                     session.close()
-                    st.experimental_rerun()
+                    st.rerun()
             
             with col2:
                 points_fixes = indicateur.points_fixes
